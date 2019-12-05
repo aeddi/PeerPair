@@ -10,11 +10,9 @@ import Foundation
 import MultipeerConnectivity
 
 protocol GameServiceDelegate {
-    // func connectedDevicesChanged(manager: GameService, connectedDevices: [String])
-    
     func networkLog(_ logText: String)
     
-    // TODO: Add other message handler functions here
+    // Add other message handler functions here
 }
 
 class GameService : NSObject {
@@ -28,12 +26,12 @@ class GameService : NSObject {
 
     private let myPeerID = MCPeerID(displayName: UIDevice.current.name)
     private var opponentID: MCPeerID?
-    private var failedIDs = [MCPeerID]()
     
     private let serviceAdvertiser : MCNearbyServiceAdvertiser
     private let serviceBrowser : MCNearbyServiceBrowser
     
     private var myState = MCSessionState.notConnected
+    private var successful = false
         
     var oppDisplayName: String?
     
@@ -75,7 +73,6 @@ class GameService : NSObject {
     }
     
     public func stopSearchingForPlayers() {
-        
         self.serviceAdvertiser.stopAdvertisingPeer()
         delegate?.networkLog("Stopped advertising")
         self.serviceBrowser.stopBrowsingForPeers()
@@ -84,10 +81,7 @@ class GameService : NSObject {
     
     func tryAnotherConnection() {
         if myState == .notConnected {
-            if let curOppID = opponentID {
-                failedIDs.append(curOppID)
-                opponentID = nil
-            }
+            opponentID = nil
             
             delegate?.networkLog("Trying to connect to another device")
             
@@ -146,7 +140,8 @@ extension GameService : MCNearbyServiceAdvertiserDelegate {
                 self.tryAnotherConnection()
             }
         } else {
-            invitationHandler(false, self.session)
+            delegate?.networkLog("Rejecting invitation from \(peerID.displayName), \(myState.debugValue) to \(opponentID!.displayName)")
+            invitationHandler(false, self.session)  // Reject invitation
         }
     }
 }
@@ -161,10 +156,7 @@ extension GameService : MCNearbyServiceBrowserDelegate {
         
         // Extra check to be absolutely sure a device doesn't connect with itself
         // and also checks to make sure it doesn't connect with more than one device
-        // and checks that we haven't already failed to connect to this device
-        if self.myPeerID.displayName != peerID.displayName &&
-            myState == .notConnected &&
-            !failedIDs.contains(peerID) {
+        if self.myPeerID.displayName != peerID.displayName && myState == .notConnected {
             delegate?.networkLog("Inviting: \(peerID.displayName)")
             browser.invitePeer(peerID,
                                to: self.session,
@@ -181,6 +173,11 @@ extension GameService : MCNearbyServiceBrowserDelegate {
     
     func browser(_ browser: MCNearbyServiceBrowser, lostPeer peerID: MCPeerID) {
         delegate?.networkLog("Lost \(peerID.displayName)")
+        
+        if opponentID == peerID {
+            opponentID = nil
+            myState = .notConnected
+        }
     }
 }
 
@@ -190,26 +187,21 @@ extension GameService : MCSessionDelegate {
         
         // Only listen to connection changes from opponent
         if opponentID == peerID {
-            // let opponentName = opponentID?.displayName ?? "nil"
-            // delegate?.networkLog("Opponent was \(opponentName)")
-            
             myState = state     // Set my state to opponent's state
-            // opponentID = peerID // Store opponent's ID
             
             switch state {
-            case .connected:
-                // Connected, so remove failed IDs
-                failedIDs.removeAll()
-                break
             case .connecting:
                 // TODO: Connecting successfully, so stop advertising
                 stopSearchingForPlayers()
-                break
+            case .connected:
+                successful = true
             case .notConnected:
-                // Disconnected, erase opponent ID
-                opponentID = nil
-                
-                // TODO: Show disconnected message
+                opponentID = nil    // Disconnected, erase opponent ID
+                if successful {
+                    successful = false  // Reset success for next connection
+                } else {
+                    tryAnotherConnection()
+                }
             @unknown default:
                 NSLog("Ignoring: unknown network state")
             }
