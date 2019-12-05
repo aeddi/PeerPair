@@ -15,6 +15,8 @@
 		13CBF17E2398DC50008889C6 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 13CBF17C2398DC50008889C6 /* LaunchScreen.storyboard */; };
 		13CBF1892398DC51008889C6 /* PeerPairTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13CBF1882398DC51008889C6 /* PeerPairTests.swift */; };
 		13CBF1942398DC51008889C6 /* PeerPairUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13CBF1932398DC51008889C6 /* PeerPairUITests.swift */; };
+		13CBF1A42398E18E008889C6 /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13CBF1A22398E18D008889C6 /* Reachability.swift */; };
+		13CBF1A52398E18E008889C6 /* GameService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13CBF1A32398E18E008889C6 /* GameService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,6 +51,8 @@
 		13CBF18F2398DC51008889C6 /* PeerPairUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PeerPairUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		13CBF1932398DC51008889C6 /* PeerPairUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeerPairUITests.swift; sourceTree = "<group>"; };
 		13CBF1952398DC51008889C6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		13CBF1A22398E18D008889C6 /* Reachability.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reachability.swift; sourceTree = "<group>"; };
+		13CBF1A32398E18E008889C6 /* GameService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GameService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,6 +103,7 @@
 		13CBF1702398DC4E008889C6 /* PeerPair */ = {
 			isa = PBXGroup;
 			children = (
+				13CBF1A12398E170008889C6 /* Network */,
 				13CBF1712398DC4E008889C6 /* AppDelegate.swift */,
 				13CBF1732398DC4E008889C6 /* SceneDelegate.swift */,
 				13CBF1752398DC4E008889C6 /* ViewController.swift */,
@@ -126,6 +131,15 @@
 				13CBF1952398DC51008889C6 /* Info.plist */,
 			);
 			path = PeerPairUITests;
+			sourceTree = "<group>";
+		};
+		13CBF1A12398E170008889C6 /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				13CBF1A32398E18E008889C6 /* GameService.swift */,
+				13CBF1A22398E18D008889C6 /* Reachability.swift */,
+			);
+			path = Network;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -261,6 +275,8 @@
 			files = (
 				13CBF1762398DC4E008889C6 /* ViewController.swift in Sources */,
 				13CBF1722398DC4E008889C6 /* AppDelegate.swift in Sources */,
+				13CBF1A52398E18E008889C6 /* GameService.swift in Sources */,
+				13CBF1A42398E18E008889C6 /* Reachability.swift in Sources */,
 				13CBF1742398DC4E008889C6 /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -366,7 +382,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -420,7 +436,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
