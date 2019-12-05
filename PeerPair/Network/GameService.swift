@@ -28,6 +28,7 @@ class GameService : NSObject {
 
     private let myPeerID = MCPeerID(displayName: UIDevice.current.name)
     private var opponentID: MCPeerID?
+    private var failedIDs = [MCPeerID]()
     
     private let serviceAdvertiser : MCNearbyServiceAdvertiser
     private let serviceBrowser : MCNearbyServiceBrowser
@@ -81,6 +82,20 @@ class GameService : NSObject {
         delegate?.networkLog("Stopped browsing")
     }
     
+    func tryAnotherConnection() {
+        if myState == .notConnected {
+            if let curOppID = opponentID {
+                failedIDs.append(curOppID)
+                opponentID = nil
+            }
+            
+            delegate?.networkLog("Trying to connect to another device")
+            
+            self.serviceBrowser.stopBrowsingForPeers()
+            self.serviceBrowser.startBrowsingForPeers()
+        }
+    }
+    
     func send(data: Data) {
         NSLog("%@", "sending data to \(session.connectedPeers.count) peers")
         
@@ -120,18 +135,25 @@ extension GameService : MCNearbyServiceAdvertiserDelegate {
     
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID, withContext context: Data?, invitationHandler: @escaping (Bool, MCSession?) -> Void) {
         delegate?.networkLog("Received invitation from \(peerID.displayName)")
-        if myState == .notConnected {
+        if myState == .notConnected && opponentID == nil {
             delegate?.networkLog("Accepting invitation from \(peerID.displayName)")
             invitationHandler(true, self.session)   // Automatically accept invitation
             opponentID = peerID
             myState = .connecting
+            
+            // If failed connection, try again in 5 seconds.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
+                self.tryAnotherConnection()
+            }
+        } else {
+            invitationHandler(false, self.session)
         }
     }
 }
 
 extension GameService : MCNearbyServiceBrowserDelegate {
     func browser(_ browser: MCNearbyServiceBrowser, didNotStartBrowsingForPeers error: Error) {
-        delegate?.networkLog("didNotStartBrowsingForPeers: \(error)")
+        delegate?.networkLog("did not start browsing for peers: \(error)")
     }
     
     func browser(_ browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String : String]?) {
@@ -139,16 +161,26 @@ extension GameService : MCNearbyServiceBrowserDelegate {
         
         // Extra check to be absolutely sure a device doesn't connect with itself
         // and also checks to make sure it doesn't connect with more than one device
-        if self.myPeerID.displayName != peerID.displayName && myState == .notConnected {
+        // and checks that we haven't already failed to connect to this device
+        if self.myPeerID.displayName != peerID.displayName &&
+            myState == .notConnected &&
+            !failedIDs.contains(peerID) {
             delegate?.networkLog("Inviting: \(peerID.displayName)")
             browser.invitePeer(peerID,
                                to: self.session,
                                withContext: nil,
                                timeout: 10)
+            opponentID = peerID
+            myState = .connecting
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
+                self.tryAnotherConnection()
+            }
         }
     }
     
     func browser(_ browser: MCNearbyServiceBrowser, lostPeer peerID: MCPeerID) {
+        delegate?.networkLog("Lost \(peerID.displayName)")
     }
 }
 
@@ -156,18 +188,22 @@ extension GameService : MCSessionDelegate {
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
         delegate?.networkLog("\(state.debugValue): \(peerID.displayName)")
         
-        // Only listen to connection changes from opponent (or if you don't yet have an opponent)
-        if opponentID == nil || opponentID == peerID {
+        // Only listen to connection changes from opponent
+        if opponentID == peerID {
+            // let opponentName = opponentID?.displayName ?? "nil"
+            // delegate?.networkLog("Opponent was \(opponentName)")
             
             myState = state     // Set my state to opponent's state
-            opponentID = peerID // Store opponent's ID
+            // opponentID = peerID // Store opponent's ID
             
             switch state {
             case .connected:
-                // TODO: Display connected message
+                // Connected, so remove failed IDs
+                failedIDs.removeAll()
                 break
             case .connecting:
-                // TODO: Display connecting message
+                // TODO: Connecting successfully, so stop advertising
+                stopSearchingForPlayers()
                 break
             case .notConnected:
                 // Disconnected, erase opponent ID
@@ -179,9 +215,12 @@ extension GameService : MCSessionDelegate {
             }
         }
         
-        let displayNames = session.connectedPeers.map{$0.displayName}.joined(separator: ", ")
-        
-        self.delegate?.networkLog("Currently connected devices: \(displayNames)")
+        if session.connectedPeers.count > 0 {
+            let displayNames = session.connectedPeers.map{$0.displayName}.joined(separator: ", ")
+            self.delegate?.networkLog("Currently connected devices: \(displayNames)")
+        } else {
+            self.delegate?.networkLog("No devices connected!")
+        }
     }
     
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {

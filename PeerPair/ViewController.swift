@@ -23,7 +23,12 @@ class ViewController: UIViewController {
         nameLabel.text = UIDevice.current.name
     }
 
-    @IBAction func connectTapped(_ sender: Any) {        
+    @IBAction func connectTapped(_ sender: Any) {
+        if isOldDeviceNotOnWifi() {
+            displayUnsupportedDialog()
+            return
+        }
+        
         gameService.startSearchingForPlayers()
     }
     
@@ -69,6 +74,28 @@ class ViewController: UIViewController {
         return formatter.string(from: Date())
     }
     
+    func isOldDeviceNotOnWifi() -> Bool {
+        if SYSTEM_VERSION_LESS_THAN(version: "12.0") {
+            let reachability = try! Reachability()
+        
+            return reachability.connection != .wifi
+        }
+        
+        return false
+    }
+    
+    func SYSTEM_VERSION_LESS_THAN(version: String) -> Bool {
+        return UIDevice.current.systemVersion.compare(version, options: .numeric) == .orderedAscending
+    }
+    
+    func displayUnsupportedDialog() {
+        let alertController = UIAlertController(title: "Bluetooth not supported",
+                                                message: "iOS 12 or later is needed to play over Bluetooth. Please connect to WiFi.",
+                                                preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(title: "OK", style: .default))
+
+        self.present(alertController, animated: true, completion: nil)
+    }
 }
 
 extension ViewController: GameServiceDelegate {
