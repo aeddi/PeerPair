@@ -80,7 +80,7 @@ class GameService : NSObject {
     }
     
     func tryAnotherConnection() {
-        if myState == .notConnected {
+        if myState == .notConnected && !successful {
             opponentID = nil
             
             delegate?.networkLog("Trying to connect to another device")
