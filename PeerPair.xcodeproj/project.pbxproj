@@ -53,6 +53,7 @@
 		13CBF1952398DC51008889C6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		13CBF1A22398E18D008889C6 /* Reachability.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reachability.swift; sourceTree = "<group>"; };
 		13CBF1A32398E18E008889C6 /* GameService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GameService.swift; sourceTree = "<group>"; };
+		13F29D8B239A8CC20058F365 /* PeerPair.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PeerPair.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -103,6 +104,7 @@
 		13CBF1702398DC4E008889C6 /* PeerPair */ = {
 			isa = PBXGroup;
 			children = (
+				13F29D8B239A8CC20058F365 /* PeerPair.entitlements */,
 				13CBF1A12398E170008889C6 /* Network */,
 				13CBF1712398DC4E008889C6 /* AppDelegate.swift */,
 				13CBF1732398DC4E008889C6 /* SceneDelegate.swift */,
@@ -450,7 +452,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = PeerPair/PeerPair.entitlements;
 				CODE_SIGN_STYLE = Automatic;
+				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = YES;
 				DEVELOPMENT_TEAM = X9BRGHT9B6;
 				INFOPLIST_FILE = PeerPair/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -459,6 +463,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = de.chucksmith.PeerPair;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -468,7 +473,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = PeerPair/PeerPair.entitlements;
 				CODE_SIGN_STYLE = Automatic;
+				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = YES;
 				DEVELOPMENT_TEAM = X9BRGHT9B6;
 				INFOPLIST_FILE = PeerPair/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -477,6 +484,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = de.chucksmith.PeerPair;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
